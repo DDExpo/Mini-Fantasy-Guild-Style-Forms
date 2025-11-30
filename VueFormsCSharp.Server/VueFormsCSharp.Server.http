@@ -1,0 +1,6 @@
+@VueFormsCSharp.Server_HostAddress = http://localhost:5062
+
+GET {{VueFormsCSharp.Server_HostAddress}}/api/GetAll
+Accept: application/json
+
+###

@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="vueformscsharp.client/vueformscsharp.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="VueFormsCSharp.Server/VueFormsCSharp.Server.csproj" />
+</Solution>
