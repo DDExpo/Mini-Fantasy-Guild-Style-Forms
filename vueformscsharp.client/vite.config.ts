@@ -47,6 +47,7 @@ export default defineConfig({
     },
     build: {
         outDir: '../VueFormsCSharp.Server/wwwroot',
+        emptyOutDir: true,
         rollupOptions: {
             output: {
                 entryFileNames: `bundle.js`,

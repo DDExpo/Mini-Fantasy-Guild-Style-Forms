@@ -21,6 +21,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.MapOpenApi("/api");
+
 FileLogger.LogInfo("Application started");
 
 app.UseExceptionHandler(errorApp =>
@@ -44,11 +46,6 @@ app.UseExceptionHandler(errorApp =>
     });
 });
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
@@ -57,6 +54,16 @@ app.UseCors();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapFallback(pattern: "/api/{segment}/{*rest}", async context =>
+{
+    context.Response.StatusCode = 404;
+    context.Response.ContentType = "application/json";
+
+    await context.Response.WriteAsJsonAsync("Not Found");
+});
+
 app.MapFallbackToFile("/index.html");
 
 app.Run();
+
