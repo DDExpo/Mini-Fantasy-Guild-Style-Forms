@@ -3,7 +3,7 @@ export interface Form<T> {
   id: string;
   data: T;
 }
-export interface FormData {
+export interface GuildFormData {
   questName: string;
   questType: string;
   color: string;
@@ -16,6 +16,6 @@ export interface FormData {
   acceptedGuildCode: boolean;
 }
 
-export interface FormDataProps {
+export interface GuildFormProps {
   id?: string | null;
 }

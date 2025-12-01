@@ -1,11 +1,11 @@
 import { ref, reactive } from "vue";
-import type { FormData, Form } from "@/types/form";
+import type { GuildFormData, Form } from "@/types/form";
 
-export const forms = ref<Form<FormData>[]>([])
+export const forms = ref<Form<GuildFormData>[]>([])
 
 export const FilteringActionsStore = reactive<{
   searchQuery: string;
-  sortField: keyof FormData;
+  sortField: keyof GuildFormData;
   sortOrder: ('asc' | 'desc');
 }>({
   searchQuery: '',
@@ -26,7 +26,7 @@ export const OptionsMainForm = [
   { id: 10, label: "Danger Level S+" }
 ];
 
-export const EmptyForm: FormData = {
+export const EmptyForm: GuildFormData = {
   questName: "",
   questType: "Monster Hunt",
   color: "#000000",
@@ -38,4 +38,4 @@ export const EmptyForm: FormData = {
   deadline: null,
   acceptedGuildCode: false,
 }
-export const formData = reactive<FormData>({ ...EmptyForm });
+export const guildForm = reactive<GuildFormData>({ ...EmptyForm });

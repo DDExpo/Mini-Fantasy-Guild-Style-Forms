@@ -1,70 +1,55 @@
 <script setup lang="ts">
-  import { ref, watch } from "vue";
+  import { computed, ref, watch } from "vue";
 
   import { useRouter } from 'vue-router'
 
-  import type { Form, FormDataProps } from "@/types/form";
+  import type { Form, GuildFormProps } from "@/types/form";
   import { validateForm } from "@/validation/validateForm";
-  import { forms, formData, EmptyForm, OptionsMainForm } from "@/store/forms";
+  import { forms, guildForm, EmptyForm, OptionsMainForm } from "@/store/forms";
   import { dangerColor } from "@/helpers/uiHelpers";
+  import { submitFormApi } from "@/api/forms";
 
   const router = useRouter()
-  const props = defineProps<FormDataProps>();
+  const props = defineProps<GuildFormProps>();
 
   const errors = ref<Record<string, string>>({})
+  const buttonText = computed(() => props.id ? 'Update Sroll' : 'Post Sroll');
 
   watch(
     () => props.id,
     (id) => {
       if (!id) {
-        Object.assign(formData, EmptyForm);
+        Object.assign(guildForm, EmptyForm);
         return;
       }
 
       const index = forms.value.findIndex(f => f.id === id);
       if (index !== -1) {
-        Object.assign(formData, forms.value[index]!.data);
+        Object.assign(guildForm, forms.value[index]!.data);
       }
     },
     { immediate: true }
   );
 
   async function submitForm() {
-    errors.value = validateForm(formData)
-    if (Object.keys(errors.value).length > 0) return
+    errors.value = validateForm(guildForm);
+    if (Object.keys(errors.value).length > 0) return;
 
     try {
-      const json = JSON.stringify(formData)
-      let response: Response
+        const result = await submitFormApi(props.id, guildForm);
 
-      if (props.id) {
-        response = await fetch(`/api/change/${props.id}`, { method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: json
-        })
-      } else {
-        response = await fetch('/api/create', { method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: json
-        })
-      }
+        if (props.id) {
+           const index = forms.value.findIndex(f => f.id === props.id);
+           if (index !== -1) forms.value[index]!.data = { ...guildForm };
+        } else {
+        forms.value.push({ id: result.toString(), data: { ...guildForm } });
+        }
 
-      const result = await response.json()
-
-      if (!response.ok) { alert('Guild made a mistake, oopsie'); return }
-
-      if (props.id) {
-        const index = forms.value.findIndex(f => f.id === props.id);
-        if (index !== -1) { forms.value[index]!.data = { ...formData }; }}
-        else { forms.value.push({ id: result.toString(), data: { ...formData } }) }
-
-      returnHome()
+        router.push('/');
     } catch (err) {
-      alert('Failed to submit Quest: ' + err)
+        alert('Failed to submit Quest: ' + err);
     }
   }
-
-  function returnHome(): void { router.push('/'); } 
 
 </script>
 
@@ -84,7 +69,7 @@
         <label for="questName">Quest Name</label>
         <input id="questName" :class="{ 'input-error': errors.questName }"
                type="text"
-               v-model="formData.questName"
+               v-model="guildForm.questName"
                placeholder="Ex: Slay the Shadow Wolf..." />
         <p v-if="errors.questName" class="error-text">
           {{ errors.questName }}
@@ -93,7 +78,7 @@
 
       <div class="guild-section">
         <label for="questType">Quest Type</label>
-        <select id="questType" v-model="formData.questType">
+        <select id="questType" v-model="guildForm.questType">
           <option value="Monster Hunt">Monster Hunt</option>
           <option value="Escort Mission">Escort Mission</option>
           <option value="Delivery Run">Delivery Run</option>
@@ -113,17 +98,17 @@
                type="range"
                min="1"
                max="10"
-               v-model.number="formData.dangerLevel" />
+               v-model.number="guildForm.dangerLevel" />
         <span class="danger-display"
-              :style="{ color: dangerColor(formData.dangerLevel) }">
-           <span class="emoji">⚔️</span>{{formData.dangerLevel }}/10</span>
+              :style="{ color: dangerColor(guildForm.dangerLevel) }">
+           <span class="emoji">⚔️</span>{{guildForm.dangerLevel }}/10</span>
       </div>
 
       <div class="guild-section">
         <label for="location">Region / Location</label>
         <input id="location" :class="{ 'input-error': errors.location }"
                type="text"
-               v-model="formData.location"
+               v-model="guildForm.location"
                placeholder="Ex: Blackwood Forest" />
         <p v-if="errors.location" class="error-text">
           {{ errors.location }}
@@ -136,7 +121,7 @@
                type="text"
                inputmode="numeric"
                pattern="[0-9]*"
-               v-model="formData.rewardGold"
+               v-model="guildForm.rewardGold"
                placeholder="Ex: 500" />
         <p v-if="errors.rewardGold" class="error-text">
           {{ errors.rewardGold }}
@@ -147,11 +132,11 @@
         <label for="deadline">Deadline</label>
         <input id="deadline"
                type="text"
-               v-model="formData.deadline" />
+               v-model="guildForm.deadline" />
       </div>
 
       <textarea id="questDetails"
-                v-model="formData.questDetails"
+                v-model="guildForm.questDetails"
                 placeholder="Describe the mission, rumors, warnings..."
                 class="quest-textarea"></textarea>
 
@@ -159,7 +144,7 @@
         <div class="req-item" v-for="(opt, index) in OptionsMainForm" :key="opt.id">
           <input type="checkbox"
                  :id="'req-' + opt.id"
-                 v-model="formData.requirements[index]" />
+                 v-model="guildForm.requirements[index]" />
           <span :for="'req-' + opt.id">{{ opt.label }}</span>
         </div>
       </div>
@@ -167,15 +152,15 @@
       <div class="guild-color">
         <label for="questColor">Stamp Color</label>
         <div class="guild-color-picker">
-          <input type="color" id="questColor" v-model="formData.color">
-          <span class="color-value">{{ formData.color }}</span>
+          <input type="color" id="questColor" v-model="guildForm.color">
+          <span class="color-value">{{ guildForm.color }}</span>
         </div>
       </div>
 
       <div class="guild-section checkbox-main">
         <div class="guild-oath">
           <input type="checkbox"
-                 v-model="formData.acceptedGuildCode"
+                 v-model="guildForm.acceptedGuildCode"
                  id="guildRules">
           <label for="guildRules">I swear to honor the Guild Code</label>
         </div>
@@ -185,8 +170,8 @@
       </div>
 
       <div class="guild-controls">
-        <button type="submit">Post Order</button>
-        <button type="button" @click="returnHome">Discard Scroll</button>
+        <button type="submit"> {{ buttonText }}</button>
+        <button type="button" @click="() => { router.push('/');}">Discard Scroll</button>
       </div>
 
     </form>

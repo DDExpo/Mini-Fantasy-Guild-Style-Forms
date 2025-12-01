@@ -2,16 +2,15 @@
   import { computed, onMounted } from 'vue';
   import { useRouter } from 'vue-router'
 
-  import type { Form } from '../types/form';
   import { forms, FilteringActionsStore as FilteringAS } from '@/store/forms'
   import { dangerColor } from "@/helpers/uiHelpers";
+  import { fetchAllFormsApi, deleteFormApi } from '@/api/forms';
 
   const router = useRouter()
 
   onMounted(async () => {
     try {
-      var response = await fetch(`/api/getAll`, { method: 'GET' })
-      const data = await response.json()
+      const data = await fetchAllFormsApi()
 
       forms.value = Array.isArray(data)
         ? data.map((item: any) => ({
@@ -21,7 +20,7 @@
         : [];
 
     } catch (err) {
-      console.error("Failed to find Quest", err)
+      console.error("Failed to find Quests", err)
     }
   })
 
@@ -36,8 +35,7 @@
     const removedForm = forms.value.splice(index, 1)[0];
 
     try {
-      const response = await fetch(`/api/delete/${id}`, { method: 'DELETE' });
-      if (!response.ok) throw Error(`Status ${response.status}`);
+      const data = await deleteFormApi(id);
 
     } catch (err) {
       forms.value.splice(index, 0, removedForm!);

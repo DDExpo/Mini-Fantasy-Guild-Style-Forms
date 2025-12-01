@@ -1,7 +1,6 @@
 <script setup lang="ts">
   import { useRouter } from 'vue-router'
   const router = useRouter()
-  const goHome = () => { router.push('/')}
 </script>
 
 <template>
@@ -10,7 +9,7 @@
     <div class="not-found-content">
       <h2 class="error-code">404</h2>
       <p class="error-message">Page Not Found</p>
-      <button type="button" @click="goHome" class="home-link">Go to Home</button>
+      <button type="button" @click="() => { router.push('/')}" class="home-link">Go to Home</button>
     </div>
   </div>
 </template>
