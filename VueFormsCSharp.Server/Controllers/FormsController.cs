@@ -28,6 +28,7 @@ namespace VueFormsCSharp.Server.Controllers
         public async Task<IActionResult> CreateApi([FromBody] JsonElement jsonData)
         {
             FileLogger.LogInfo("Endpoint POST");
+
             var responseDb = Db.Create("forms", jsonData);
 
             if (!responseDb.Success)
@@ -44,6 +45,7 @@ namespace VueFormsCSharp.Server.Controllers
         public IActionResult UpdateApi(long id, [FromBody] JsonElement jsonData)
         {
             FileLogger.LogInfo("Endpoint PUT");
+
             var responseDb = Db.Update("forms", id, jsonData);
 
             if (!responseDb.Success)

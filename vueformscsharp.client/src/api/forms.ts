@@ -1,7 +1,7 @@
 import type { GuildFormData } from "@/types/form";
 
 export async function fetchAllFormsApi() {
-  var response = await fetch(`/api/getAll`, { method: 'GET' })
+  const response = await fetch(`/api/getAll`, { method: 'GET' })
   return await response.json()
 }
 

@@ -46,7 +46,7 @@
   const filteredForms = computed(() => {
     const query = FilteringAS.searchQuery.toLowerCase();
 
-    let filtered = forms.value.filter((form) => {
+    const filtered = forms.value.filter((form) => {
 
       const fields = [
         form.data.questName, form.data.questType, form.data.location,
